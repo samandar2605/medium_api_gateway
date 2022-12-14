@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/samandar2605/medium_user_service/config"
+	"github.com/samandar2605/medium_api_gateway/config"
 )
 
 type TokenParams struct {

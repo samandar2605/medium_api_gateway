@@ -21,6 +21,23 @@ definitions:
       username:
         type: string
     type: object
+  models.Category:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  models.CreateCategoryRequest:
+    properties:
+      title:
+        maxLength: 100
+        type: string
+    required:
+    - title
+    type: object
   models.CreatePostRequest:
     properties:
       category_id:
@@ -76,13 +93,6 @@ definitions:
       error:
         type: string
     type: object
-  models.ForgotPasswordRequest:
-    properties:
-      email:
-        type: string
-    required:
-    - email
-    type: object
   models.GetAllUsersResponse:
     properties:
       categories:
@@ -91,18 +101,6 @@ definitions:
         type: array
       count:
         type: integer
-    type: object
-  models.LoginRequest:
-    properties:
-      email:
-        type: string
-      password:
-        maxLength: 16
-        minLength: 6
-        type: string
-    required:
-    - email
-    - password
     type: object
   models.Post:
     properties:
@@ -161,13 +159,6 @@ definitions:
       message:
         type: string
     type: object
-  models.UpdatePasswordRequest:
-    properties:
-      password:
-        type: string
-    required:
-    - password
-    type: object
   models.User:
     properties:
       created_at:
@@ -210,58 +201,6 @@ info:
   title: Swagger for blog api
   version: "1.0"
 paths:
-  /auth/forgot-password:
-    post:
-      consumes:
-      - application/json
-      description: Forgot password
-      parameters:
-      - description: Data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.ForgotPasswordRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.ResponseOK'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      summary: Forgot password
-      tags:
-      - auth
-  /auth/login:
-    post:
-      consumes:
-      - application/json
-      description: Login user
-      parameters:
-      - description: Data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.LoginRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.AuthResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      summary: Login user
-      tags:
-      - auth
   /auth/register:
     post:
       consumes:
@@ -286,34 +225,6 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Register a user
-      tags:
-      - auth
-  /auth/update-password:
-    post:
-      consumes:
-      - application/json
-      description: Update password
-      parameters:
-      - description: Data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.UpdatePasswordRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.ResponseOK'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Update password
       tags:
       - auth
   /auth/verify:
@@ -342,32 +253,32 @@ paths:
       summary: Verify user
       tags:
       - auth
-  /auth/verify-forgot-password:
+  /categories:
     post:
       consumes:
       - application/json
-      description: Verify forgot password
+      description: Create a category
       parameters:
-      - description: Data
+      - description: Category
         in: body
-        name: data
+        name: category
         required: true
         schema:
-          $ref: '#/definitions/models.VerifyRequest'
+          $ref: '#/definitions/models.CreateCategoryRequest'
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
-            $ref: '#/definitions/models.AuthResponse'
+            $ref: '#/definitions/models.Category'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      summary: Verify forgot password
+      summary: Create a category
       tags:
-      - auth
+      - category
   /posts:
     post:
       consumes:

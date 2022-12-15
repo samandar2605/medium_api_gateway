@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/samandar2605/medium_api_gateway/api/models"
 	pbu "github.com/samandar2605/medium_api_gateway/genproto/user_service"
-	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/status"
 )
 

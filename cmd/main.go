@@ -1,6 +1,5 @@
 package main
 
-
 import (
 	"log"
 
@@ -18,7 +17,7 @@ func main() {
 		log.Fatalf("failed to get grpc connections: %v", err)
 	}
 	apiServer := api.New(&api.RouterOptions{
-		Cfg:        &cfg,
+		Cfg:         &cfg,
 		GrpcClientI: grpcConn,
 	})
 	err = apiServer.Run(cfg.HttpPort)

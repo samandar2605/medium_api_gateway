@@ -28,7 +28,7 @@ func (h *handlerV1) GetPost(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.grpcClient.PostService().GetPost(context.Background(), &pb.IdRequest{Id: int64(id)})
+	resp, err := h.grpcClient.PostService().Get(context.Background(), &pb.GetPostRequest{Id: int64(id)})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -58,7 +58,7 @@ func (h *handlerV1) CreatePost(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.grpcClient.PostService().CreatePost(context.Background(), &pb.Post{
+	resp, err := h.grpcClient.PostService().Create(context.Background(), &pb.Post{
 		Title:       req.Title,
 		Description: req.Description,
 		ImageUrl:    req.ImageUrl,

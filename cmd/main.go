@@ -18,7 +18,7 @@ func main() {
 	}
 	apiServer := api.New(&api.RouterOptions{
 		Cfg:         &cfg,
-		GrpcClientI: grpcConn,
+		GrpcClient: grpcConn,
 	})
 	err = apiServer.Run(cfg.HttpPort)
 	if err != nil {

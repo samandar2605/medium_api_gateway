@@ -3,6 +3,8 @@ package models
 type RegisterRequest struct {
 	FirstName string `json:"first_name" binding:"required,min=2,max=30"`
 	LastName  string `json:"last_name" binding:"required,min=2,max=30"`
+	Gender    string `json:"gender" binding:"required,oneof=male female" default:"male"`
+	Type      string `json:"type" binding:"required,oneof=superadmin user admin" default:"user"`
 	Email     string `json:"email" binding:"required,email"`
 	Password  string `json:"password" binding:"required,min=6,max=16"`
 }

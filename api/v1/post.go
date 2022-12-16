@@ -37,7 +37,6 @@ func (h *handlerV1) GetPost(c *gin.Context) {
 	c.JSON(http.StatusOK, post)
 }
 
-// @Security ApiKeyAuth
 // @Router /posts [post]
 // @Summary Create a post
 // @Description Create a post

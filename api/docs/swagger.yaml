@@ -159,6 +159,12 @@ definitions:
         maxLength: 30
         minLength: 2
         type: string
+      gender:
+        default: male
+        enum:
+        - male
+        - female
+        type: string
       last_name:
         maxLength: 30
         minLength: 2
@@ -167,11 +173,20 @@ definitions:
         maxLength: 16
         minLength: 6
         type: string
+      type:
+        default: user
+        enum:
+        - superadmin
+        - user
+        - admin
+        type: string
     required:
     - email
     - first_name
+    - gender
     - last_name
     - password
+    - type
     type: object
   models.ResponseOK:
     properties:

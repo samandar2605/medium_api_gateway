@@ -811,8 +811,10 @@ const docTemplate = `{
             "required": [
                 "email",
                 "first_name",
+                "gender",
                 "last_name",
-                "password"
+                "password",
+                "type"
             ],
             "properties": {
                 "email": {
@@ -823,6 +825,14 @@ const docTemplate = `{
                     "maxLength": 30,
                     "minLength": 2
                 },
+                "gender": {
+                    "type": "string",
+                    "default": "male",
+                    "enum": [
+                        "male",
+                        "female"
+                    ]
+                },
                 "last_name": {
                     "type": "string",
                     "maxLength": 30,
@@ -832,6 +842,15 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 16,
                     "minLength": 6
+                },
+                "type": {
+                    "type": "string",
+                    "default": "user",
+                    "enum": [
+                        "superadmin",
+                        "user",
+                        "admin"
+                    ]
                 }
             }
         },

@@ -804,8 +804,10 @@
             "required": [
                 "email",
                 "first_name",
+                "gender",
                 "last_name",
-                "password"
+                "password",
+                "type"
             ],
             "properties": {
                 "email": {
@@ -816,6 +818,14 @@
                     "maxLength": 30,
                     "minLength": 2
                 },
+                "gender": {
+                    "type": "string",
+                    "default": "male",
+                    "enum": [
+                        "male",
+                        "female"
+                    ]
+                },
                 "last_name": {
                     "type": "string",
                     "maxLength": 30,
@@ -825,6 +835,15 @@
                     "type": "string",
                     "maxLength": 16,
                     "minLength": 6
+                },
+                "type": {
+                    "type": "string",
+                    "default": "user",
+                    "enum": [
+                        "superadmin",
+                        "user",
+                        "admin"
+                    ]
                 }
             }
         },

@@ -49,6 +49,8 @@ func (h *handlerV1) Register(c *gin.Context) {
 		Password:  req.Password,
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
+		Gender:    req.Gender,
+		Type:      req.Type,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))

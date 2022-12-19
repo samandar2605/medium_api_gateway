@@ -22,7 +22,7 @@ type CreateUserRequest struct {
 	Gender          string `json:"gender" binding:"oneof=male female"`
 	Username        string `json:"username"`
 	ProfileImageUrl string `json:"profile_image_url"`
-	Type            string `json:"type" binding:"required,oneof=superadmin user"`
+	Type            string `json:"type" binding:"required,oneof=user admin superadmin"`
 	Password        string `json:"password" binding:"required,min=6,max=16"`
 }
 

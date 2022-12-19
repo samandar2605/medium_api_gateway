@@ -76,8 +76,9 @@ definitions:
         type: string
       type:
         enum:
-        - superadmin
         - user
+        - admin
+        - superadmin
         type: string
       username:
         type: string
@@ -555,7 +556,7 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Delete a User
       tags:
-      - user
+      - users
     get:
       consumes:
       - application/json

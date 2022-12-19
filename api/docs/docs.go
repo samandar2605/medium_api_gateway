@@ -558,7 +558,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "users"
                 ],
                 "summary": "Delete a User",
                 "parameters": [
@@ -701,8 +701,9 @@ const docTemplate = `{
                 "type": {
                     "type": "string",
                     "enum": [
-                        "superadmin",
-                        "user"
+                        "user",
+                        "admin",
+                        "superadmin"
                     ]
                 },
                 "username": {

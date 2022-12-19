@@ -92,6 +92,7 @@ func (h *handlerV1) GetUser(c *gin.Context) {
 		FirstName:       user.FirstName,
 		LastName:        user.LastName,
 		PhoneNumber:     user.PhoneNumber,
+		Password:        user.Password,
 		Email:           user.Email,
 		Gender:          user.Gender,
 		Username:        user.Username,
@@ -150,6 +151,7 @@ func parseUserModel(user *pbu.User) models.User {
 		FirstName:       user.FirstName,
 		LastName:        user.LastName,
 		PhoneNumber:     user.PhoneNumber,
+		Password:        user.Password,
 		Email:           user.Email,
 		Gender:          user.Gender,
 		Username:        user.Username,
@@ -212,7 +214,7 @@ func (h *handlerV1) UpdateUser(ctx *gin.Context) {
 
 // @Summary Delete a User
 // @Description Delete a user
-// @Tags user
+// @Tags users
 // @Accept json
 // @Produce json
 // @Param id path int true "ID"
@@ -239,5 +241,4 @@ func (h *handlerV1) DeleteUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "successful delete method",
 	})
-
 }

@@ -551,7 +551,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "users"
                 ],
                 "summary": "Delete a User",
                 "parameters": [
@@ -694,8 +694,9 @@
                 "type": {
                     "type": "string",
                     "enum": [
-                        "superadmin",
-                        "user"
+                        "user",
+                        "admin",
+                        "superadmin"
                     ]
                 },
                 "username": {

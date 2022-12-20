@@ -40,7 +40,7 @@ type UpdateUserRequest struct {
 }
 
 type GetAllUsersResponse struct {
-	Users []User `json:"categories"`
+	Users []User `json:"users"`
 	Count int32  `json:"count"`
 }
 

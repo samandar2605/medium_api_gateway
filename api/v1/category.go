@@ -91,7 +91,7 @@ func (h *handlerV1) GetCategory(c *gin.Context) {
 // @Param search query string false "Search"
 // @Success 200 {object} models.Category
 // @Failure 500 {object} models.ErrorResponse
-// @Router /Categories [get]
+// @Router /categories [get]
 func (h *handlerV1) GetCategoryAll(ctx *gin.Context) {
 	queryParams, err := validateGetCategoryQuery(ctx)
 	if err != nil {
@@ -148,7 +148,7 @@ func validateGetCategoryQuery(ctx *gin.Context) (*models.GetAllCategoriesRequest
 // @Accept json
 // @Produce json
 // @Param id path int true "ID"
-// @Param user body models.CreateCategory true "Category"
+// @Param user body models.CreateCategoryRequest true "Category"
 // @Success 200 {object} models.Category
 // @Failure 500 {object} models.ErrorResponse
 // @Router /categories/{id} [put]

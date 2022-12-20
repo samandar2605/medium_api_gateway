@@ -2,6 +2,7 @@ package v1
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -55,6 +56,7 @@ func (h *handlerV1) CreateUser(c *gin.Context) {
 		Email:           user.Email,
 		Gender:          user.Gender,
 		Username:        user.Username,
+		Password:        user.Password,
 		ProfileImageUrl: user.ProfileImageUrl,
 		Type:            user.Type,
 		CreatedAt:       user.CreatedAt,
@@ -209,12 +211,24 @@ func (h *handlerV1) UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, user)
+	ctx.JSON(http.StatusOK, models.User{
+		ID:              user.Id,
+		FirstName:       user.FirstName,
+		LastName:        user.LastName,
+		PhoneNumber:     user.PhoneNumber,
+		Password:        user.Password,
+		Email:           user.Email,
+		Gender:          user.Gender,
+		Username:        user.Username,
+		ProfileImageUrl: user.ProfileImageUrl,
+		Type:            user.Type,
+		CreatedAt:       user.CreatedAt,
+	})
 }
 
 // @Summary Delete a User
 // @Description Delete a user
-// @Tags users
+// @Tags user
 // @Accept json
 // @Produce json
 // @Param id path int true "ID"
@@ -232,6 +246,7 @@ func (h *handlerV1) DeleteUser(ctx *gin.Context) {
 	_, err = h.grpcClient.UserService().Delete(context.Background(), &pbu.IdRequest{
 		Id: int64(id),
 	})
+	fmt.Println(err)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
 			Error: err.Error(),

@@ -298,7 +298,6 @@ func (h *handlerV1) VerifyForgotPassword(c *gin.Context) {
 	})
 }
 
-// @Security ApiKeyAuth
 // @Router /auth/update-password [post]
 // @Summary Update password
 // @Description Update password

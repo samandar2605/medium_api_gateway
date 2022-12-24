@@ -9,7 +9,23 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/samandar2605/medium_api_gateway/api/models"
 	pb "github.com/samandar2605/medium_api_gateway/genproto/post_service"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
+
+func parsePostModel(post *pb.Post) models.Post {
+	return models.Post{
+		ID:          post.Id,
+		Title:       post.Title,
+		Description: post.Description,
+		ImageUrl:    post.ImageUrl,
+		UserID:      post.UserId,
+		CategoryID:  post.CategoryId,
+		ViewsCount:  int32(post.ViewsCount),
+		CreatedAt:   post.CreatedAt,
+		UpdatedAt:   post.UpdatedAt,
+	}
+}
 
 // @Router /posts/{id} [get]
 // @Summary Get post by id
@@ -56,16 +72,13 @@ func (h *handlerV1) CreatePost(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	fmt.Println("<<<Api ichida 1>>>")
-	fmt.Println(req)
-	fmt.Println("<<<Api ichida 2 >>>")
 
 	resp, err := h.grpcClient.PostService().Create(context.Background(), &pb.CreatePost{
 		Title:       req.Title,
 		Description: req.Description,
-		ImageUrl:    req.ImageUrl,
-		UserId:      1,
 		CategoryId:  req.CategoryID,
+		ImageUrl:    req.ImageUrl,
+		UserId:      req.UserId,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -74,18 +87,6 @@ func (h *handlerV1) CreatePost(c *gin.Context) {
 
 	post := parsePostModel(resp)
 	c.JSON(http.StatusCreated, post)
-}
-
-func parsePostModel(post *pb.Post) models.Post {
-	return models.Post{
-		ID:          post.Id,
-		Title:       post.Title,
-		Description: post.Description,
-		ImageUrl:    post.ImageUrl,
-		UserID:      post.UserId,
-		CategoryID:  post.CategoryId,
-		ViewsCount:  int32(post.ViewsCount),
-	}
 }
 
 // @Router /posts [get]
@@ -111,16 +112,35 @@ func (h *handlerV1) GetAllPost(c *gin.Context) {
 		Limit:      req.Limit,
 		CategoryId: int32(req.CategoryID),
 		UserId:     req.UserID,
+		SortByDate: req.SortByData,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
 			Error: err.Error(),
 		})
-		return
 	}
 
-	res, _ := postsResponse(h, result)
+	var res models.GetAllPostsResponse
+	res.Count = int32(result.Count)
+	for _, post := range result.Posts {
+		res.Posts = append(res.Posts, &models.Post{
+			ID:          post.Id,
+			Title:       post.Title,
+			Description: post.Description,
+			ImageUrl:    post.ImageUrl,
+			UserID:      post.UserId,
+			CategoryID:  post.CategoryId,
+			UpdatedAt:   post.UpdatedAt,
+			ViewsCount:  post.ViewsCount,
+			CreatedAt:   post.CreatedAt,
+		})
+	}
+	if res.Posts == nil {
+		res.Posts = []*models.Post{}
+	}
+
 	c.JSON(http.StatusOK, res)
+
 }
 
 func postsParams(c *gin.Context) (*models.GetAllPostsParams, error) {
@@ -173,92 +193,64 @@ func postsParams(c *gin.Context) (*models.GetAllPostsParams, error) {
 	}, nil
 }
 
-func postsResponse(h *handlerV1, data *pb.GetAllPostsResponse) (*models.GetAllPostsResponse, error) {
-	response := models.GetAllPostsResponse{
-		Posts: make([]*models.Post, 0),
-		Count: int32(data.Count),
-	}
-
-	for _, post := range data.Posts {
-		if _, err := h.grpcClient.PostService().ViewInc(context.Background(), &pb.GetPostRequest{
-			Id: post.Id,
-		}); err != nil {
-			return nil, err
-		}
-
-		post.ViewsCount++
-
-		response.Posts = append(response.Posts, &models.Post{
-			ID:          post.Id,
-			Title:       post.Title,
-			Description: post.Description,
-			ImageUrl:    post.Title,
-			UserID:      post.UserId,
-			CategoryID:  post.CategoryId,
-			UpdatedAt:   post.UpdatedAt,
-			ViewsCount:  post.ViewsCount,
-			CreatedAt:   post.CreatedAt,
-		})
-	}
-
-	fmt.Println("api gateway ichida ")
-	return &response, nil
-}
-
-// @Security ApiKeyAuth
-// @Summary Update a post
-// @Description Update a post
+// @Router /posts/{id} [put]
+// @Summary Update post
+// @Description Update post
 // @Tags post
 // @Accept json
 // @Produce json
 // @Param id path int true "ID"
-// @Param user body models.Post true "post"
-// @Success 200 {object} models.Post
+// @Param post body models.ChangePost true "post"
+// @Success 201 {object} models.Post
 // @Failure 500 {object} models.ErrorResponse
-// @Router /posts/{id} [put]
-func (h *handlerV1) UpdatePost(ctx *gin.Context) {
-	var b models.Post
-
-	err := ctx.ShouldBindJSON(&b)
+func (h *handlerV1) UpdatePost(c *gin.Context) {
+	var (
+		req models.ChangePost
+	)
+	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error: err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	id, err := strconv.Atoi(ctx.Param("id"))
+	// payload, err := h.GetAuthPayload(c)
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, errorResponse(err))
+	// 	return
+	// }
+
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error: err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	payload, err := h.GetAuthPayload(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	post, err := h.grpcClient.PostService().Update(context.Background(), &pb.Post{
+	fmt.Println("id: ", id)
+	fmt.Println("user_id: ", req.UserId)
+	fmt.Println("image: ", req.ImageUrl)
+	fmt.Println("description: ", req.Description)
+	fmt.Println("title: ", req.Title)
+	resp, err := h.grpcClient.PostService().Update(context.Background(), &pb.ChangePost{
 		Id:          int64(id),
-		Title:       b.Title,
-		Description: b.Description,
-		ImageUrl:    b.ImageUrl,
-		UserId:      payload.UserID,
-		CategoryId:  b.CategoryID,
-		ViewsCount:  b.ViewsCount,
+		UserId:      req.UserId,
+		Title:       req.Title,
+		Description: req.Description,
+		ImageUrl:    req.ImageUrl,
 	})
+
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		if s, _ := status.FromError(err); s.Code() == codes.NotFound {
+			c.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	ctx.JSON(http.StatusOK, post)
+	post := parsePostModel(resp)
+	c.JSON(http.StatusCreated, post)
 }
 
-// @Security ApiKeyAuth
 // @Summary Delete a posts
 // @Description Delete a posts
 // @Tags post

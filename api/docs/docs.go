@@ -138,11 +138,6 @@ const docTemplate = `{
         },
         "/auth/update-password": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Update password",
                 "consumes": [
                     "application/json"
@@ -277,21 +272,20 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Limit",
+                        "default": 10,
                         "name": "limit",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "integer",
-                        "description": "Page",
+                        "default": 1,
                         "name": "page",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Search",
                         "name": "search",
                         "in": "query"
                     }
@@ -300,7 +294,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Category"
+                            "$ref": "#/definitions/models.GetAllCategoriesResponse"
                         }
                     },
                     "500": {
@@ -529,11 +523,6 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Create a comment",
                 "consumes": [
                     "application/json"
@@ -616,11 +605,6 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Update a comments",
                 "consumes": [
                     "application/json"
@@ -666,11 +650,6 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Delete a comment",
                 "consumes": [
                     "application/json"
@@ -703,11 +682,6 @@ const docTemplate = `{
         },
         "/likes": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Create or update like",
                 "consumes": [
                     "application/json"
@@ -748,11 +722,6 @@ const docTemplate = `{
         },
         "/likes/user-post": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Get like by user and post",
                 "consumes": [
                     "application/json"
@@ -821,11 +790,6 @@ const docTemplate = `{
                         "name": "page",
                         "in": "query",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "name": "search",
-                        "in": "query"
                     },
                     {
                         "enum": [
@@ -935,12 +899,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Update a post",
+                "description": "Update post",
                 "consumes": [
                     "application/json"
                 ],
@@ -950,7 +909,7 @@ const docTemplate = `{
                 "tags": [
                     "post"
                 ],
-                "summary": "Update a post",
+                "summary": "Update post",
                 "parameters": [
                     {
                         "type": "integer",
@@ -961,17 +920,17 @@ const docTemplate = `{
                     },
                     {
                         "description": "post",
-                        "name": "user",
+                        "name": "post",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Post"
+                            "$ref": "#/definitions/models.ChangePost"
                         }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/models.Post"
                         }
@@ -985,11 +944,6 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Delete a posts",
                 "consumes": [
                     "application/json"
@@ -1269,6 +1223,26 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ChangePost": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.Comment": {
             "type": "object",
             "properties": {
@@ -1312,6 +1286,9 @@ const docTemplate = `{
                 },
                 "post_id": {
                     "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -1331,6 +1308,9 @@ const docTemplate = `{
         },
         "models.CreatePostRequest": {
             "type": "object",
+            "required": [
+                "title"
+            ],
             "properties": {
                 "category_id": {
                     "type": "integer"
@@ -1343,6 +1323,9 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -1416,6 +1399,20 @@ const docTemplate = `{
             "properties": {
                 "email": {
                     "type": "string"
+                }
+            }
+        },
+        "models.GetAllCategoriesResponse": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Category"
+                    }
+                },
+                "count": {
+                    "type": "integer"
                 }
             }
         },
@@ -1604,20 +1601,11 @@ const docTemplate = `{
         "models.UpdateComment": {
             "type": "object",
             "properties": {
-                "created_at": {
-                    "type": "string"
-                },
                 "description": {
                     "type": "string"
                 },
-                "id": {
+                "user_id": {
                     "type": "integer"
-                },
-                "post_id": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
                 }
             }
         },

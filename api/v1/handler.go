@@ -16,6 +16,7 @@ var (
 	ErrUserNotVerified  = errors.New("user not verified")
 	ErrIncorrectCode    = errors.New("incorrect verification code")
 	ErrCodeExpired      = errors.New("verification code has been expired")
+	ErrNotAllowed       = errors.New("method not allowed")
 	ErrForbidden        = errors.New("forbidden")
 )
 

@@ -30,6 +30,19 @@ definitions:
       title:
         type: string
     type: object
+  models.ChangePost:
+    properties:
+      description:
+        type: string
+      image_url:
+        type: string
+      title:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - title
+    type: object
   models.Comment:
     properties:
       created_at:
@@ -59,6 +72,8 @@ definitions:
         type: string
       post_id:
         type: integer
+      user_id:
+        type: integer
     type: object
   models.CreateOrUpdateLikeRequest:
     properties:
@@ -79,6 +94,10 @@ definitions:
         type: string
       title:
         type: string
+      user_id:
+        type: integer
+    required:
+    - title
     type: object
   models.CreateUserRequest:
     properties:
@@ -131,6 +150,15 @@ definitions:
         type: string
     required:
     - email
+    type: object
+  models.GetAllCategoriesResponse:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/models.Category'
+        type: array
+      count:
+        type: integer
     type: object
   models.GetAllCommentsParams:
     properties:
@@ -261,16 +289,10 @@ definitions:
     type: object
   models.UpdateComment:
     properties:
-      created_at:
-        type: string
       description:
         type: string
-      id:
+      user_id:
         type: integer
-      post_id:
-        type: integer
-      updated_at:
-        type: string
     type: object
   models.UpdatePasswordRequest:
     properties:
@@ -422,8 +444,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
       summary: Update password
       tags:
       - auth
@@ -485,18 +505,17 @@ paths:
       - application/json
       description: Get Category
       parameters:
-      - description: Limit
+      - default: 10
         in: query
         name: limit
         required: true
         type: integer
-      - description: Page
+      - default: 1
         in: query
         name: page
         required: true
         type: integer
-      - description: Search
-        in: query
+      - in: query
         name: search
         type: string
       produces:
@@ -505,7 +524,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Category'
+            $ref: '#/definitions/models.GetAllCategoriesResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -683,8 +702,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
       summary: Create a comment
       tags:
       - comments
@@ -706,8 +723,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
       summary: Delete a comment
       tags:
       - comments
@@ -762,8 +777,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
       summary: Update a comment
       tags:
       - comments
@@ -790,8 +803,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
       summary: Create or update like
       tags:
       - like
@@ -817,8 +828,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
       summary: Get like by user and post
       tags:
       - like
@@ -841,9 +850,6 @@ paths:
         name: page
         required: true
         type: integer
-      - in: query
-        name: search
-        type: string
       - default: desc
         enum:
         - asc
@@ -911,8 +917,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
       summary: Delete a posts
       tags:
       - post
@@ -943,7 +947,7 @@ paths:
     put:
       consumes:
       - application/json
-      description: Update a post
+      description: Update post
       parameters:
       - description: ID
         in: path
@@ -952,24 +956,22 @@ paths:
         type: integer
       - description: post
         in: body
-        name: user
+        name: post
         required: true
         schema:
-          $ref: '#/definitions/models.Post'
+          $ref: '#/definitions/models.ChangePost'
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/models.Post'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Update a post
+      summary: Update post
       tags:
       - post
   /users:

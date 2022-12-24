@@ -48,7 +48,6 @@ func (h *handlerV1) GetComment(c *gin.Context) {
 	})
 }
 
-// @Security ApiKeyAuth
 // @Router /comments [post]
 // @Summary Create a comment
 // @Description Create a comment
@@ -72,17 +71,17 @@ func (h *handlerV1) CreateComment(c *gin.Context) {
 		return
 	}
 
-	usr, err := h.GetAuthPayload(c)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error: err.Error(),
-		})
-		return
-	}
+	// usr, err := h.GetAuthPayload(c)
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+	// 		Error: err.Error(),
+	// 	})
+	// 	return
+	// }
 
-	resp, err := h.grpcClient.CommentService().Create(context.Background(), &pbp.CreateComment{
+	resp, err := h.grpcClient.CommentService().Create(context.Background(), &pbp.CreateCommentRequest{
 		PostId:      int64(req.PostId),
-		UserId:      usr.UserID,
+		UserId:      int64(req.UserID),
 		Description: req.Description,
 	})
 	if err != nil {
@@ -98,7 +97,6 @@ func (h *handlerV1) CreateComment(c *gin.Context) {
 		UserId:      int(resp.UserId),
 		Description: resp.Description,
 		CreatedAt:   resp.CreatedAt,
-		UpdatedAt:   resp.UpdatedAt,
 	})
 }
 
@@ -213,7 +211,6 @@ func parseCommentModel(Comment *pbp.Comment) models.Comment {
 	}
 }
 
-// @Security ApiKeyAuth
 // @Summary Update a comment
 // @Description Update a comments
 // @Tags comments
@@ -242,10 +239,10 @@ func (h *handlerV1) UpdateComment(ctx *gin.Context) {
 		return
 	}
 
-	b.Id = id
 	comment, err := h.grpcClient.CommentService().Update(context.Background(), &pbp.Comment{
-		Id:          int64(b.Id),
+		Id:          int64(id),
 		Description: b.Description,
+		UserId:      int64(b.UserID),
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
@@ -253,10 +250,17 @@ func (h *handlerV1) UpdateComment(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, comment)
+
+	ctx.JSON(http.StatusOK, models.Comment{
+		Id:          int(comment.Id),
+		PostId:      int(comment.PostId),
+		UserId:      int(comment.UserId),
+		Description: comment.Description,
+		CreatedAt:   comment.CreatedAt,
+		UpdatedAt:   comment.UpdatedAt,
+	})
 }
 
-// @Security ApiKeyAuth
 // @Summary Delete a comment
 // @Description Delete a comment
 // @Tags comments

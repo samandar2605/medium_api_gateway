@@ -2,7 +2,6 @@ package v1
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -194,9 +193,8 @@ func (h *handlerV1) UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	req.ID = int64(id)
 	user, err := h.grpcClient.UserService().Update(context.Background(), &pbu.User{
-		Id:              req.ID,
+		Id:              int64(id),
 		FirstName:       req.FirstName,
 		LastName:        req.LastName,
 		PhoneNumber:     req.PhoneNumber,
@@ -246,7 +244,6 @@ func (h *handlerV1) DeleteUser(ctx *gin.Context) {
 	_, err = h.grpcClient.UserService().Delete(context.Background(), &pbu.IdRequest{
 		Id: int64(id),
 	})
-	fmt.Println(err)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
 			Error: err.Error(),

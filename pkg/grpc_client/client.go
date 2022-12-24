@@ -74,6 +74,7 @@ func (g *GrpcClient) CategoryService() pbp.CategoryServiceClient {
 func (g *GrpcClient) LikeService() pbp.LikeServiceClient {
 	return g.connections["like_service"].(pbp.LikeServiceClient)
 }
+
 func (g *GrpcClient) CommentService() pbp.CommentServiceClient {
 	return g.connections["comment_service"].(pbp.CommentServiceClient)
 }

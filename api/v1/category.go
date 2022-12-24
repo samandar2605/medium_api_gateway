@@ -86,10 +86,8 @@ func (h *handlerV1) GetCategory(c *gin.Context) {
 // @Tags category
 // @Accept json
 // @Produce json
-// @Param limit query int true "Limit"
-// @Param page query int true "Page"
-// @Param search query string false "Search"
-// @Success 200 {object} models.Category
+// @Param filter query models.GetAllCategoriesRequest false "Filter"
+// @Success 200 {object} models.GetAllCategoriesResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /categories [get]
 func (h *handlerV1) GetCategoryAll(ctx *gin.Context) {
@@ -112,8 +110,20 @@ func (h *handlerV1) GetCategoryAll(ctx *gin.Context) {
 		})
 		return
 	}
-
-	ctx.JSON(http.StatusOK, resp)
+	result := models.GetAllCategoriesResponse{
+		Count:      resp.Count,
+	}
+	for _, i := range resp.Categories {
+		result.Categories = append(result.Categories, &models.Category{
+			Id:        i.Id,
+			Title:     i.Title,
+			CreatedAt: i.CreatedAt,
+		})
+	}
+	if result.Categories==nil{
+		result.Categories=[]*models.Category{}
+	}
+	ctx.JSON(http.StatusOK, result)
 }
 
 func validateGetCategoryQuery(ctx *gin.Context) (*models.GetAllCategoriesRequest, error) {

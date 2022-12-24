@@ -10,7 +10,6 @@ import (
 	pb "github.com/samandar2605/medium_api_gateway/genproto/post_service"
 )
 
-// @Security ApiKeyAuth
 // @Router /likes [post]
 // @Summary Create or update like
 // @Description Create or update like
@@ -52,7 +51,6 @@ func (h *handlerV1) CreateOrUpdateLike(c *gin.Context) {
 	})
 }
 
-// @Security ApiKeyAuth
 // @Router /likes/user-post [get]
 // @Summary Get like by user and post
 // @Description Get like by user and post

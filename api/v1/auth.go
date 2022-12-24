@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -106,6 +107,8 @@ func (h *handlerV1) Verify(c *gin.Context) {
 		FirstName:   result.FirstName,
 		LastName:    result.LastName,
 		Email:       result.Email,
+		Password:    result.Password,
+		Username:    result.Username,
 		Type:        result.Type,
 		CreatedAt:   result.CreatedAt,
 		AccessToken: result.AccessToken,
@@ -258,6 +261,7 @@ func (h *handlerV1) VerifyForgotPassword(c *gin.Context) {
 	}
 
 	if req.Code != code.Password {
+		fmt.Println(req, code.Password)
 		c.JSON(http.StatusForbidden, errorResponse(ErrIncorrectCode))
 		return
 	}

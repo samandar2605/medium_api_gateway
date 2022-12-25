@@ -10,6 +10,7 @@ import (
 	pb "github.com/samandar2605/medium_api_gateway/genproto/post_service"
 )
 
+// @Security ApiKeyAuth
 // @Router /likes [post]
 // @Summary Create or update like
 // @Description Create or update like
@@ -17,7 +18,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param like body models.CreateOrUpdateLikeRequest true "like"
-// @Success 201 {object} models.Like
+// @Success 201 {object} models.ResponseOK
 // @Failure 500 {object} models.ErrorResponse
 func (h *handlerV1) CreateOrUpdateLike(c *gin.Context) {
 	var (
@@ -51,6 +52,7 @@ func (h *handlerV1) CreateOrUpdateLike(c *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /likes/user-post [get]
 // @Summary Get like by user and post
 // @Description Get like by user and post
@@ -61,7 +63,7 @@ func (h *handlerV1) CreateOrUpdateLike(c *gin.Context) {
 // @Success 200 {object} models.Like
 // @Failure 500 {object} models.ErrorResponse
 func (h *handlerV1) GetLike(c *gin.Context) {
-	postID, err := strconv.Atoi(c.Query("post_id"))
+	PostId, err := strconv.Atoi(c.Query("post_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -75,13 +77,11 @@ func (h *handlerV1) GetLike(c *gin.Context) {
 
 	resp, err := h.grpcClient.LikeService().GetLike(context.Background(), &pb.Get{
 		UserId: payload.UserID,
-		PostId: int64(postID),
+		PostId: int64(PostId),
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
 	}
-
 	c.JSON(http.StatusOK, models.Like{
 		Id:     int(resp.Id),
 		PostId: int(resp.PostId),

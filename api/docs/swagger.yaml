@@ -798,11 +798,13 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Like'
+            $ref: '#/definitions/models.ResponseOK'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create or update like
       tags:
       - like
@@ -828,6 +830,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get like by user and post
       tags:
       - like

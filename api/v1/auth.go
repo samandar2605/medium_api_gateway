@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"net/http"
 	"strconv"
 	"time"
@@ -15,6 +16,7 @@ import (
 	"github.com/samandar2605/medium_api_gateway/pkg/utils"
 	"google.golang.org/grpc/status"
 )
+
 
 // @Router /auth/register [post]
 // @Summary Register a user
@@ -88,9 +90,13 @@ func (h *handlerV1) Verify(c *gin.Context) {
 		Code:  req.Code,
 	})
 
+	fmt.Println(req.Email)
+	fmt.Println(req.Code)
+
 	if err != nil {
 		s, _ := status.FromError(err)
 		if s.Message() == "incorrect_code" {
+			fmt.Println(req.Code)
 			c.JSON(http.StatusBadRequest, errorResponse(ErrIncorrectCode))
 			return
 		} else if s.Message() == "code_expired" {
@@ -251,36 +257,21 @@ func (h *handlerV1) VerifyForgotPassword(c *gin.Context) {
 		return
 	}
 
-	code, err := h.grpcClient.AuthService().VerifyForgotPassword(context.Background(), &pbu.VerifyRequest{
+	res, err := h.grpcClient.AuthService().VerifyForgotPassword(context.Background(), &pbu.VerifyRequest{
 		Code:  req.Code,
 		Email: req.Email,
 	})
+
 	if err != nil {
 		c.JSON(http.StatusForbidden, errorResponse(ErrCodeExpired))
 		return
 	}
 
-	if req.Code != code.Password {
-		fmt.Println(req, code.Password)
-		c.JSON(http.StatusForbidden, errorResponse(ErrIncorrectCode))
-		return
-	}
-
-	result, err := h.grpcClient.UserService().GetByEmail(context.Background(), &pbu.GetByEmailRequest{
-		Email: req.Email,
-	})
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.ErrorResponse{
-			Error: err.Error(),
-		})
-		return
-	}
-
 	token, _, err := utils.CreateToken(h.cfg, &utils.TokenParams{
-		UserId:   result.Id,
-		UserType: result.Type,
-		Username: result.Username,
-		Email:    result.Email,
+		UserId:   res.Id,
+		UserType: res.Type,
+		Username: res.Username,
+		Email:    res.Email,
 		Duration: time.Hour * 24,
 	})
 	if err != nil {
@@ -291,13 +282,13 @@ func (h *handlerV1) VerifyForgotPassword(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, models.AuthResponse{
-		ID:          result.Id,
-		FirstName:   result.FirstName,
-		LastName:    result.LastName,
-		Email:       result.Email,
-		Username:    result.Username,
-		Type:        result.Type,
-		CreatedAt:   result.CreatedAt,
+		ID:          res.Id,
+		FirstName:   res.FirstName,
+		LastName:    res.LastName,
+		Email:       res.Email,
+		Username:    res.Username,
+		Type:        res.Type,
+		CreatedAt:   res.CreatedAt,
 		AccessToken: token,
 	})
 }

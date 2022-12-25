@@ -682,6 +682,11 @@ const docTemplate = `{
         },
         "/likes": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create or update like",
                 "consumes": [
                     "application/json"
@@ -708,7 +713,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Like"
+                            "$ref": "#/definitions/models.ResponseOK"
                         }
                     },
                     "500": {
@@ -722,6 +727,11 @@ const docTemplate = `{
         },
         "/likes/user-post": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get like by user and post",
                 "consumes": [
                     "application/json"

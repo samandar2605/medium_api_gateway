@@ -11,6 +11,7 @@ import (
 	pbu "github.com/samandar2605/medium_api_gateway/genproto/user_service"
 )
 
+// @Security ApiKeyAuth
 // @Router /users [post]
 // @Summary Create a user
 // @Description Create a user
@@ -25,13 +26,21 @@ func (h *handlerV1) CreateUser(c *gin.Context) {
 		req models.CreateUserRequest
 	)
 
-	err := c.ShouldBindJSON(&req)
+	payload, err := h.GetAuthPayload(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	err = c.ShouldBindJSON(&req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	user, err := h.grpcClient.UserService().Create(context.Background(), &pbu.User{
+	user, err := h.grpcClient.UserService().Create(context.Background(), &pbu.CreateUser{
 		FirstName:       req.FirstName,
 		LastName:        req.LastName,
 		PhoneNumber:     req.PhoneNumber,
@@ -41,6 +50,7 @@ func (h *handlerV1) CreateUser(c *gin.Context) {
 		Username:        req.Username,
 		ProfileImageUrl: req.ProfileImageUrl,
 		Type:            req.Type,
+		PayloadType:     payload.UserType,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -162,13 +172,14 @@ func parseUserModel(user *pbu.User) models.User {
 	}
 }
 
+// @Security ApiKeyAuth
 // @Summary Update a user
-// @Description Update a userss
+// @Description Update a users
 // @Tags user
 // @Accept json
 // @Produce json
 // @Param id path int true "ID"
-// @Param user body models.CreateUserRequest true "user"
+// @Param user body models.UpdateUserRequest true "user"
 // @Success 200 {object} models.User
 // @Failure 500 {object} models.ErrorResponse
 // @Router /users/{id} [put]
@@ -192,8 +203,14 @@ func (h *handlerV1) UpdateUser(ctx *gin.Context) {
 		})
 		return
 	}
-
-	user, err := h.grpcClient.UserService().Update(context.Background(), &pbu.User{
+	payload, err := h.GetAuthPayload(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+	user, err := h.grpcClient.UserService().Update(context.Background(), &pbu.UpdateUser{
 		Id:              int64(id),
 		FirstName:       req.FirstName,
 		LastName:        req.LastName,
@@ -201,6 +218,7 @@ func (h *handlerV1) UpdateUser(ctx *gin.Context) {
 		Gender:          req.Gender,
 		Username:        req.Username,
 		ProfileImageUrl: req.ProfileImageUrl,
+		PayloadType:     payload.UserType,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
@@ -224,6 +242,7 @@ func (h *handlerV1) UpdateUser(ctx *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Summary Delete a User
 // @Description Delete a user
 // @Tags user
@@ -241,8 +260,17 @@ func (h *handlerV1) DeleteUser(ctx *gin.Context) {
 		return
 	}
 
-	_, err = h.grpcClient.UserService().Delete(context.Background(), &pbu.IdRequest{
-		Id: int64(id),
+	payload, err := h.GetAuthPayload(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	_, err = h.grpcClient.UserService().Delete(context.Background(), &pbu.DeleteUserRequest{
+		Id:          int64(id),
+		PayloadType: payload.UserType,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{

@@ -54,6 +54,7 @@ func (h *handlerV1) GetPost(c *gin.Context) {
 	c.JSON(http.StatusOK, post)
 }
 
+// @Security ApiKeyAuth
 // @Router /posts [post]
 // @Summary Create a post
 // @Description Create a post
@@ -193,6 +194,7 @@ func postsParams(c *gin.Context) (*models.GetAllPostsParams, error) {
 	}, nil
 }
 
+// @Security ApiKeyAuth
 // @Router /posts/{id} [put]
 // @Summary Update post
 // @Description Update post
@@ -251,6 +253,7 @@ func (h *handlerV1) UpdatePost(c *gin.Context) {
 	c.JSON(http.StatusCreated, post)
 }
 
+// @Security ApiKeyAuth
 // @Summary Delete a posts
 // @Description Delete a posts
 // @Tags post

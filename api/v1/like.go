@@ -37,7 +37,7 @@ func (h *handlerV1) CreateOrUpdateLike(c *gin.Context) {
 		return
 	}
 
-	_, err = h.grpcClient.LikeService().CreateOrUpdateLike(context.Background(), &pb.CreateOrUpdateLikeRequest{
+	_, err = h.grpcClient.LikeService().CreateOrUpdate(context.Background(), &pb.CreateOrUpdateLikeRequest{
 		UserId: payload.UserID,
 		PostId: int64(req.PostId),
 		Status: req.Status,
@@ -75,7 +75,7 @@ func (h *handlerV1) GetLike(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.grpcClient.LikeService().GetLike(context.Background(), &pb.Get{
+	resp, err := h.grpcClient.LikeService().Get(context.Background(), &pb.GetLike{
 		UserId: payload.UserID,
 		PostId: int64(PostId),
 	})

@@ -7,7 +7,6 @@ import (
 	"fmt"
 
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +15,6 @@ import (
 	"github.com/samandar2605/medium_api_gateway/pkg/utils"
 	"google.golang.org/grpc/status"
 )
-
 
 // @Router /auth/register [post]
 // @Summary Register a user
@@ -89,9 +87,6 @@ func (h *handlerV1) Verify(c *gin.Context) {
 		Email: req.Email,
 		Code:  req.Code,
 	})
-
-	fmt.Println(req.Email)
-	fmt.Println(req.Code)
 
 	if err != nil {
 		s, _ := status.FromError(err)
@@ -185,6 +180,7 @@ func (h *handlerV1) Login(c *gin.Context) {
 		LastName:    result.LastName,
 		Email:       result.Email,
 		Username:    result.Username,
+		Password:    result.Password,
 		Type:        result.Type,
 		CreatedAt:   result.CreatedAt,
 		AccessToken: token,
@@ -293,6 +289,7 @@ func (h *handlerV1) VerifyForgotPassword(c *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /auth/update-password [post]
 // @Summary Update password
 // @Description Update password
@@ -331,10 +328,10 @@ func (h *handlerV1) UpdatePassword(c *gin.Context) {
 		return
 	}
 
-	usrId := strconv.Itoa(int(payload.UserID))
-	_, err = h.grpcClient.UserService().UpdatePassword(context.Background(), &pbu.NewPassword{
-		UserId:   usrId,
-		Password: hashedPassword,
+	_, err = h.grpcClient.AuthService().UpdatePassword(context.Background(), &pbu.NewPassword{
+		UserId:      payload.UserID,
+		Password:    hashedPassword,
+		PayloadType: payload.UserType,
 	})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{

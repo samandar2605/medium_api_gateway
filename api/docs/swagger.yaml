@@ -301,6 +301,37 @@ definitions:
     required:
     - password
     type: object
+  models.UpdateUserRequest:
+    properties:
+      first_name:
+        maxLength: 30
+        minLength: 2
+        type: string
+      gender:
+        enum:
+        - male
+        - female
+        type: string
+      last_name:
+        maxLength: 30
+        minLength: 2
+        type: string
+      phone_number:
+        type: string
+      profile_image_url:
+        type: string
+      type:
+        enum:
+        - superadmin
+        - user
+        type: string
+      username:
+        type: string
+    required:
+    - first_name
+    - last_name
+    - type
+    type: object
   models.User:
     properties:
       created_at:
@@ -444,6 +475,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update password
       tags:
       - auth
@@ -554,6 +587,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a category
       tags:
       - category
@@ -575,6 +610,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Delete a categories
       tags:
       - category
@@ -629,6 +666,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update a Category
       tags:
       - category
@@ -702,6 +741,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a comment
       tags:
       - comments
@@ -723,6 +764,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Delete a comment
       tags:
       - comments
@@ -777,6 +820,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update a comment
       tags:
       - comments
@@ -900,6 +945,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a post
       tags:
       - post
@@ -921,6 +968,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Delete a posts
       tags:
       - post
@@ -975,6 +1024,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update post
       tags:
       - post
@@ -1033,6 +1084,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a user
       tags:
       - user
@@ -1054,6 +1107,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Delete a User
       tags:
       - user
@@ -1084,7 +1139,7 @@ paths:
     put:
       consumes:
       - application/json
-      description: Update a userss
+      description: Update a users
       parameters:
       - description: ID
         in: path
@@ -1096,7 +1151,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/models.CreateUserRequest'
+          $ref: '#/definitions/models.UpdateUserRequest'
       produces:
       - application/json
       responses:
@@ -1108,6 +1163,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update a user
       tags:
       - user

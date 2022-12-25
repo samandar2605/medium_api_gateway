@@ -11,6 +11,7 @@ import (
 	pbp "github.com/samandar2605/medium_api_gateway/genproto/post_service"
 )
 
+// @Security ApiKeyAuth
 // @Router /categories [post]
 // @Summary Create a category
 // @Description Create a category
@@ -152,6 +153,7 @@ func validateGetCategoryQuery(ctx *gin.Context) (*models.GetAllCategoriesRequest
 		Search: ctx.Query("search")}, nil
 }
 
+// @Security ApiKeyAuth
 // @Summary Update a Category
 // @Description Update a Category
 // @Tags category
@@ -195,6 +197,7 @@ func (h *handlerV1) UpdateCategory(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, category)
 }
 
+// @Security ApiKeyAuth
 // @Summary Delete a categories
 // @Description Delete a categories
 // @Tags category

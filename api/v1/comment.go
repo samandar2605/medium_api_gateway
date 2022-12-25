@@ -48,6 +48,7 @@ func (h *handlerV1) GetComment(c *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /comments [post]
 // @Summary Create a comment
 // @Description Create a comment
@@ -211,6 +212,8 @@ func parseCommentModel(Comment *pbp.Comment) models.Comment {
 	}
 }
 
+
+// @Security ApiKeyAuth
 // @Summary Update a comment
 // @Description Update a comments
 // @Tags comments
@@ -261,6 +264,7 @@ func (h *handlerV1) UpdateComment(ctx *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Summary Delete a comment
 // @Description Delete a comment
 // @Tags comments

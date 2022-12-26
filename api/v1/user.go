@@ -2,6 +2,7 @@ package v1
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -26,6 +27,12 @@ func (h *handlerV1) CreateUser(c *gin.Context) {
 		req models.CreateUserRequest
 	)
 
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
 	payload, err := h.GetAuthPayload(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -34,13 +41,14 @@ func (h *handlerV1) CreateUser(c *gin.Context) {
 		return
 	}
 
-	err = c.ShouldBindJSON(&req)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+	if payload.UserType != "superadmin" {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error: err.Error(),
+		})
 		return
 	}
 
-	user, err := h.grpcClient.UserService().Create(context.Background(), &pbu.CreateUser{
+	user, err := h.grpcClient.UserService().Create(context.Background(), &pbu.User{
 		FirstName:       req.FirstName,
 		LastName:        req.LastName,
 		PhoneNumber:     req.PhoneNumber,
@@ -50,7 +58,6 @@ func (h *handlerV1) CreateUser(c *gin.Context) {
 		Username:        req.Username,
 		ProfileImageUrl: req.ProfileImageUrl,
 		Type:            req.Type,
-		PayloadType:     payload.UserType,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -196,13 +203,6 @@ func (h *handlerV1) UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	id, err := strconv.Atoi(ctx.Param("id"))
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error: err.Error(),
-		})
-		return
-	}
 	payload, err := h.GetAuthPayload(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -210,6 +210,20 @@ func (h *handlerV1) UpdateUser(ctx *gin.Context) {
 		})
 		return
 	}
+
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+	if payload.UserID != int64(id) && payload.UserType != "superadmin" {
+		err := errors.New("authorization header is not provided")
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	user, err := h.grpcClient.UserService().Update(context.Background(), &pbu.UpdateUser{
 		Id:              int64(id),
 		FirstName:       req.FirstName,
@@ -218,7 +232,6 @@ func (h *handlerV1) UpdateUser(ctx *gin.Context) {
 		Gender:          req.Gender,
 		Username:        req.Username,
 		ProfileImageUrl: req.ProfileImageUrl,
-		PayloadType:     payload.UserType,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
@@ -252,14 +265,13 @@ func (h *handlerV1) UpdateUser(ctx *gin.Context) {
 // @Failure 500 {object} models.ErrorResponse
 // @Router /users/{id} [delete]
 func (h *handlerV1) DeleteUser(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 0)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": "failed to convert",
 		})
 		return
 	}
-
 	payload, err := h.GetAuthPayload(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -268,9 +280,15 @@ func (h *handlerV1) DeleteUser(ctx *gin.Context) {
 		return
 	}
 
+	if int(id) != int(payload.UserID) && payload.UserType != "superadmin" {
+		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
 	_, err = h.grpcClient.UserService().Delete(context.Background(), &pbu.DeleteUserRequest{
-		Id:          int64(id),
-		PayloadType: payload.UserType,
+		Id: id,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{

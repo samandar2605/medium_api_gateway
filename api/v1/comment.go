@@ -72,17 +72,17 @@ func (h *handlerV1) CreateComment(c *gin.Context) {
 		return
 	}
 
-	// usr, err := h.GetAuthPayload(c)
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-	// 		Error: err.Error(),
-	// 	})
-	// 	return
-	// }
+	payload, err := h.GetAuthPayload(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
 
 	resp, err := h.grpcClient.CommentService().Create(context.Background(), &pbp.CreateCommentRequest{
 		PostId:      int64(req.PostId),
-		UserId:      int64(req.UserID),
+		UserId:      int64(payload.UserID),
 		Description: req.Description,
 	})
 	if err != nil {
@@ -212,7 +212,6 @@ func parseCommentModel(Comment *pbp.Comment) models.Comment {
 	}
 }
 
-
 // @Security ApiKeyAuth
 // @Summary Update a comment
 // @Description Update a comments
@@ -242,10 +241,18 @@ func (h *handlerV1) UpdateComment(ctx *gin.Context) {
 		return
 	}
 
+	payload, err := h.GetAuthPayload(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
 	comment, err := h.grpcClient.CommentService().Update(context.Background(), &pbp.Comment{
 		Id:          int64(id),
 		Description: b.Description,
-		UserId:      int64(b.UserID),
+		UserId:      payload.UserID,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
@@ -257,7 +264,7 @@ func (h *handlerV1) UpdateComment(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, models.Comment{
 		Id:          int(comment.Id),
 		PostId:      int(comment.PostId),
-		UserId:      int(comment.UserId),
+		UserId:      int(payload.UserID),
 		Description: comment.Description,
 		CreatedAt:   comment.CreatedAt,
 		UpdatedAt:   comment.UpdatedAt,

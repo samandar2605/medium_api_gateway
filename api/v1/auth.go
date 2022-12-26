@@ -4,15 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/samandar2605/medium_api_gateway/api/models"
 	pbu "github.com/samandar2605/medium_api_gateway/genproto/user_service"
-	"github.com/samandar2605/medium_api_gateway/pkg/utils"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
@@ -46,11 +44,11 @@ func (h *handlerV1) Register(c *gin.Context) {
 	}
 
 	_, err = h.grpcClient.AuthService().Register(context.Background(), &pbu.RegisterRequest{
-		Email:     req.Email,
-		Password:  req.Password,
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
+		Email:     req.Email,
 		Gender:    req.Gender,
+		Password:  req.Password,
 		Type:      req.Type,
 	})
 	if err != nil {
@@ -91,7 +89,6 @@ func (h *handlerV1) Verify(c *gin.Context) {
 	if err != nil {
 		s, _ := status.FromError(err)
 		if s.Message() == "incorrect_code" {
-			fmt.Println(req.Code)
 			c.JSON(http.StatusBadRequest, errorResponse(ErrIncorrectCode))
 			return
 		} else if s.Message() == "code_expired" {
@@ -143,34 +140,13 @@ func (h *handlerV1) Login(c *gin.Context) {
 		Code:  req.Password,
 	})
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			c.JSON(http.StatusForbidden, errorResponse(ErrWrongEmailOrPass))
+		s, _ := status.FromError(err)
+		if s.Code() == codes.NotFound || s.Message() == "incorrect_password" {
+			c.JSON(http.StatusBadRequest, errorResponse(ErrWrongEmailOrPass))
 			return
 		}
 
-		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	err = utils.CheckPassword(req.Password, result.Password)
-	if err != nil {
-		c.JSON(http.StatusForbidden, errorResponse(ErrWrongEmailOrPass))
-		return
-	}
-
-	token, _, err := utils.CreateToken(h.cfg, &utils.TokenParams{
-		UserId:   result.Id,
-		UserType: result.Type,
-		Username: result.Username,
-		Email:    result.Email,
-		Duration: time.Hour * 24,
-	})
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.ErrorResponse{
-			Error: err.Error(),
-		})
+		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
@@ -183,7 +159,7 @@ func (h *handlerV1) Login(c *gin.Context) {
 		Password:    result.Password,
 		Type:        result.Type,
 		CreatedAt:   result.CreatedAt,
-		AccessToken: token,
+		AccessToken: result.AccessToken,
 	})
 }
 
@@ -263,20 +239,6 @@ func (h *handlerV1) VerifyForgotPassword(c *gin.Context) {
 		return
 	}
 
-	token, _, err := utils.CreateToken(h.cfg, &utils.TokenParams{
-		UserId:   res.Id,
-		UserType: res.Type,
-		Username: res.Username,
-		Email:    res.Email,
-		Duration: time.Hour * 24,
-	})
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.ErrorResponse{
-			Error: err.Error(),
-		})
-		return
-	}
-
 	c.JSON(http.StatusCreated, models.AuthResponse{
 		ID:          res.Id,
 		FirstName:   res.FirstName,
@@ -285,7 +247,7 @@ func (h *handlerV1) VerifyForgotPassword(c *gin.Context) {
 		Username:    res.Username,
 		Type:        res.Type,
 		CreatedAt:   res.CreatedAt,
-		AccessToken: token,
+		AccessToken: res.AccessToken,
 	})
 }
 
@@ -320,18 +282,9 @@ func (h *handlerV1) UpdatePassword(c *gin.Context) {
 		return
 	}
 
-	hashedPassword, err := utils.HashPassword(req.Password)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.ErrorResponse{
-			Error: err.Error(),
-		})
-		return
-	}
-
 	_, err = h.grpcClient.AuthService().UpdatePassword(context.Background(), &pbu.NewPassword{
 		UserId:      payload.UserID,
-		Password:    hashedPassword,
-		PayloadType: payload.UserType,
+		Password:    req.Password,
 	})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{

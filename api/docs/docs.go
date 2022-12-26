@@ -1312,9 +1312,6 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -1361,9 +1358,6 @@ const docTemplate = `{
                 },
                 "post_id": {
                     "type": "integer"
-                },
-                "user_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -1398,9 +1392,6 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -1449,7 +1440,6 @@ const docTemplate = `{
                     "type": "string",
                     "enum": [
                         "user",
-                        "admin",
                         "superadmin"
                     ]
                 },
@@ -1678,9 +1668,6 @@ const docTemplate = `{
             "properties": {
                 "description": {
                     "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -1740,6 +1727,13 @@ const docTemplate = `{
         },
         "models.User": {
             "type": "object",
+            "required": [
+                "email",
+                "first_name",
+                "last_name",
+                "password",
+                "type"
+            ],
             "properties": {
                 "created_at": {
                     "type": "string"
@@ -1748,19 +1742,29 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "first_name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 2
                 },
                 "gender": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "male",
+                        "female"
+                    ]
                 },
                 "id": {
                     "type": "integer"
                 },
                 "last_name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 2
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 16,
+                    "minLength": 6
                 },
                 "phone_number": {
                     "type": "string"
@@ -1769,7 +1773,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "user",
+                        "superadmin"
+                    ]
                 },
                 "username": {
                     "type": "string"

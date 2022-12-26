@@ -2,7 +2,6 @@ package v1
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -73,13 +72,19 @@ func (h *handlerV1) CreatePost(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
+	payload, err := h.GetAuthPayload(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
 	resp, err := h.grpcClient.PostService().Create(context.Background(), &pb.CreatePost{
 		Title:       req.Title,
 		Description: req.Description,
 		CategoryId:  req.CategoryID,
 		ImageUrl:    req.ImageUrl,
-		UserId:      req.UserId,
+		UserId:      payload.UserID,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -227,14 +232,17 @@ func (h *handlerV1) UpdatePost(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("id: ", id)
-	fmt.Println("user_id: ", req.UserId)
-	fmt.Println("image: ", req.ImageUrl)
-	fmt.Println("description: ", req.Description)
-	fmt.Println("title: ", req.Title)
+	payload, err := h.GetAuthPayload(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
 	resp, err := h.grpcClient.PostService().Update(context.Background(), &pb.ChangePost{
 		Id:          int64(id),
-		UserId:      req.UserId,
+		UserId:      payload.UserID,
 		Title:       req.Title,
 		Description: req.Description,
 		ImageUrl:    req.ImageUrl,

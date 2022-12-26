@@ -112,7 +112,7 @@ func (h *handlerV1) GetCategoryAll(ctx *gin.Context) {
 		return
 	}
 	result := models.GetAllCategoriesResponse{
-		Count:      resp.Count,
+		Count: resp.Count,
 	}
 	for _, i := range resp.Categories {
 		result.Categories = append(result.Categories, &models.Category{
@@ -121,8 +121,8 @@ func (h *handlerV1) GetCategoryAll(ctx *gin.Context) {
 			CreatedAt: i.CreatedAt,
 		})
 	}
-	if result.Categories==nil{
-		result.Categories=[]*models.Category{}
+	if result.Categories == nil {
+		result.Categories = []*models.Category{}
 	}
 	ctx.JSON(http.StatusOK, result)
 }

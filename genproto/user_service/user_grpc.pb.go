@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
-	Create(ctx context.Context, in *CreateUser, opts ...grpc.CallOption) (*User, error)
+	Create(ctx context.Context, in *User, opts ...grpc.CallOption) (*User, error)
 	Get(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*User, error)
 	GetAll(ctx context.Context, in *GetAllUsersRequest, opts ...grpc.CallOption) (*GetAllUsersResponse, error)
 	Update(ctx context.Context, in *UpdateUser, opts ...grpc.CallOption) (*User, error)
@@ -38,7 +38,7 @@ func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 	return &userServiceClient{cc}
 }
 
-func (c *userServiceClient) Create(ctx context.Context, in *CreateUser, opts ...grpc.CallOption) (*User, error) {
+func (c *userServiceClient) Create(ctx context.Context, in *User, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
 	err := c.cc.Invoke(ctx, "/genproto.UserService/Create", in, out, opts...)
 	if err != nil {
@@ -96,7 +96,7 @@ func (c *userServiceClient) GetByEmail(ctx context.Context, in *GetByEmailReques
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
-	Create(context.Context, *CreateUser) (*User, error)
+	Create(context.Context, *User) (*User, error)
 	Get(context.Context, *IdRequest) (*User, error)
 	GetAll(context.Context, *GetAllUsersRequest) (*GetAllUsersResponse, error)
 	Update(context.Context, *UpdateUser) (*User, error)
@@ -109,7 +109,7 @@ type UserServiceServer interface {
 type UnimplementedUserServiceServer struct {
 }
 
-func (UnimplementedUserServiceServer) Create(context.Context, *CreateUser) (*User, error) {
+func (UnimplementedUserServiceServer) Create(context.Context, *User) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
 func (UnimplementedUserServiceServer) Get(context.Context, *IdRequest) (*User, error) {
@@ -141,7 +141,7 @@ func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
 }
 
 func _UserService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateUser)
+	in := new(User)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func _UserService_Create_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: "/genproto.UserService/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).Create(ctx, req.(*CreateUser))
+		return srv.(UserServiceServer).Create(ctx, req.(*User))
 	}
 	return interceptor(ctx, in, info, handler)
 }

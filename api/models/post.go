@@ -22,11 +22,9 @@ type CreatePostRequest struct {
 	Description string `json:"description"`
 	ImageUrl    string `json:"image_url"`
 	CategoryID  int64  `json:"category_id"`
-	UserId      int64  `json:"user_id"`
 }
 
 type ChangePost struct {
-	UserId      int64  `json:"user_id"`
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description"`
 	ImageUrl    string `json:"image_url"`

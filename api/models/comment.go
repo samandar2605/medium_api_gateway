@@ -11,12 +11,10 @@ type Comment struct {
 
 type CreateComment struct {
 	PostId      int    `json:"post_id" db:"post_id"`
-	UserID      int    `json:"user_id" db:"user_id"`
 	Description string `json:"description" db:"description"`
 }
 
 type UpdateComment struct {
-	UserID      int    `json:"user_id" db:"user_id"`
 	Description string `json:"description" db:"description"`
 }
 

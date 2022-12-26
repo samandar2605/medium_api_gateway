@@ -38,8 +38,6 @@ definitions:
         type: string
       title:
         type: string
-      user_id:
-        type: integer
     required:
     - title
     type: object
@@ -72,8 +70,6 @@ definitions:
         type: string
       post_id:
         type: integer
-      user_id:
-        type: integer
     type: object
   models.CreateOrUpdateLikeRequest:
     properties:
@@ -94,8 +90,6 @@ definitions:
         type: string
       title:
         type: string
-      user_id:
-        type: integer
     required:
     - title
     type: object
@@ -127,7 +121,6 @@ definitions:
       type:
         enum:
         - user
-        - admin
         - superadmin
         type: string
       username:
@@ -291,8 +284,6 @@ definitions:
     properties:
       description:
         type: string
-      user_id:
-        type: integer
     type: object
   models.UpdatePasswordRequest:
     properties:
@@ -339,23 +330,41 @@ definitions:
       email:
         type: string
       first_name:
+        maxLength: 30
+        minLength: 2
         type: string
       gender:
+        enum:
+        - male
+        - female
         type: string
       id:
         type: integer
       last_name:
+        maxLength: 30
+        minLength: 2
         type: string
       password:
+        maxLength: 16
+        minLength: 6
         type: string
       phone_number:
         type: string
       profile_image_url:
         type: string
       type:
+        enum:
+        - user
+        - superadmin
         type: string
       username:
         type: string
+    required:
+    - email
+    - first_name
+    - last_name
+    - password
+    - type
     type: object
   models.VerifyRequest:
     properties:
